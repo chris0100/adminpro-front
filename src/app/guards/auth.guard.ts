@@ -36,14 +36,11 @@ export class AuthGuard implements CanActivate {
 
 
   isTokenExpirado(): boolean {
-    const token = this.usuarioService.tokenValidate;
+    const token = this.usuarioService.token;
     const objPayload = this.usuarioService.obtenerDatosToken(token);
     const now = new Date().getTime() / 1000; // Obtiene la fecha actual en ms
 
     // Si la fecha es menor, significa que esta vencido, de lo contrario retorna false
-    if (objPayload.exp < now) {
-      return true;
-    }
-    return false;
+    return objPayload.exp < now;
   }
 }

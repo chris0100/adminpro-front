@@ -31,25 +31,37 @@
       <!-- ============================================================== -->
       <ul class="navbar-nav mr-auto">
         <!-- This is  -->
-        <li class="nav-item"><a class="nav-link nav-toggler hidden-md-up waves-effect waves-dark"
-                                href="javascript:void(0)"><i class="ti-menu"></i></a></li>
-        <li class="nav-item"><a class="nav-link sidebartoggler hidden-sm-down waves-effect waves-dark"
-                                href="javascript:void(0)"><i class="ti-menu"></i></a></li>
+        <li class="nav-item"><a class="nav-link nav-toggler hidden-md-up waves-effect waves-dark">
+          <i class="ti-menu"></i></a>
+        </li>
+        <li class="nav-item"><a class="nav-link sidebartoggler hidden-sm-down waves-effect waves-dark">
+          <i class="ti-menu"></i></a>
+        </li>
         <li class="nav-item hidden-sm-down"></li>
       </ul>
       <!-- ============================================================== -->
       <!-- User profile and search -->
       <!-- ============================================================== -->
       <ul class="navbar-nav my-lg-0">
+
+
+
         <!-- ============================================================== -->
         <!-- Search -->
         <!-- ============================================================== -->
-        <li class="nav-item hidden-xs-down search-box"><a class="nav-link hidden-sm-down waves-effect waves-dark"
-                                                          href="javascript:void(0)"><i class="ti-search"></i></a>
-          <form class="app-search">
-            <input type="text" class="form-control" placeholder="Search & enter"> <a class="srh-btn"><i
-            class="ti-close"></i></a></form>
+        <li class="nav-item hidden-xs-down search-box"> <a class="nav-link hidden-sm-down waves-effect waves-dark" href="javascript:void(0)"><i class="ti-search"></i></a>
+          <form class="app-search"
+                (submit)="buscar( txtTermino.value )">
+            <input type="text"
+                   class="form-control"
+                   placeholder="Buscar médico, hospital o usuario"
+                   #txtTermino>
+            <a class="srh-btn"><i class="ti-close"></i></a>
+          </form>
         </li>
+
+
+
         <!-- ============================================================== -->
         <!-- Comment -->
         <!-- ============================================================== -->
@@ -181,17 +193,20 @@
         <!-- ============================================================== -->
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle waves-effect waves-dark" href="" data-toggle="dropdown"
-             aria-haspopup="true" aria-expanded="false"><img src="./assets/images/users/1.jpg" alt="user"
+             aria-haspopup="true" aria-expanded="false"><img [src]="usuario.img" alt="user"
                                                              class="profile-pic"/></a>
           <div class="dropdown-menu dropdown-menu-right animated flipInY">
             <ul class="dropdown-user">
               <li>
                 <div class="dw-user-box">
-                  <div class="u-img"><img src="./assets/images/users/1.jpg" alt="user"></div>
+                  <div class="u-img"><img [src]="usuario.img" alt="user"></div>
                   <div class="u-text">
-                    <h4>Steave Jobs</h4>
-                    <p class="text-muted">varun@gmail.com</p><a href="pages-profile.html"
-                                                                class="btn btn-rounded btn-danger btn-sm">View
+                    <h4>{{usuario.nombre}}</h4>
+                    <p class="text-muted">
+                      {{usuario.email | slice:0:20}}{{(usuario.email.length > 20)? '...' : ''}}
+                    </p>
+                    <a href="pages-profile.html"
+                       class="btn btn-rounded btn-danger btn-sm">View
                     Profile</a></div>
                 </div>
               </li>

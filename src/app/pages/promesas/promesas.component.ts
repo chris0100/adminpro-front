@@ -1,5 +1,4 @@
-import { Component, OnInit } from '@angular/core';
-import {rejects} from 'assert';
+import {Component, OnInit} from '@angular/core';
 
 @Component({
   selector: 'app-promesas',
@@ -15,7 +14,9 @@ export class PromesasComponent implements OnInit {
     this.getUsuarios().then(usuarios => {
       console.log(usuarios);
     });
-/*    const promesa = new Promise( (resolve, reject) => {
+
+    // Construyendo promesa
+    const promesa = new Promise( (resolve, reject) => {
       if (false){
         resolve('hola M');
       } else{
@@ -23,22 +24,21 @@ export class PromesasComponent implements OnInit {
       }
     });
 
+    // Toma el camino del reject
     promesa.then((mensaje) => {
       console.log(mensaje);
-    }).catch(error => console.log('Error en promesa', error));
+    }).catch(error => console.log('Error en promesa:', error));
 
-    console.log('fin init');*/
+    console.log('fin init');
   }
 
 
   getUsuarios(): Promise<any>{
-    const promesa = new Promise(resolve => {
+    return new Promise(resolve => {
       fetch('https://reqres.in/api/users')
-        .then( resp => resp.json())
+        .then(resp => resp.json())
         .then(body => resolve(body.data));
     });
-
-    return promesa;
   }
 
 }

@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {UsuarioService} from '../../services/usuario.service';
-import Swal from 'sweetalert2'
+import Swal from 'sweetalert2';
 import {Router} from '@angular/router';
 
 @Component({
@@ -13,6 +13,10 @@ export class RegisterComponent {
 
   public formSubmitted = false;
 
+
+  constructor(private fb: FormBuilder, private usuarioService: UsuarioService,
+              private router: Router) { }
+
   public registerForm = this.fb.group({
     nombre: ['', [Validators.required, Validators.minLength(3)]],
     email: ['', [Validators.required, Validators.email]],
@@ -22,9 +26,6 @@ export class RegisterComponent {
   }, {
     validators: this.passwordsIguales('password', 'password2')
   });
-
-  constructor(private fb: FormBuilder, private usuarioService: UsuarioService,
-              private router: Router) { }
 
 
   crearUsuario(): void{
@@ -44,7 +45,7 @@ export class RegisterComponent {
               // Guarda usuario y token
               this.usuarioService.guardarDataSession(response.access_token);
 
-              const usuario = this.usuarioService.usuarioValidate;
+              const usuario = this.usuarioService.usuario;
 
               Swal.fire('Bienvenido', `${usuario.nombre}, has iniciado sesión correctamente`, 'success');
 

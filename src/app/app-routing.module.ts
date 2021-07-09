@@ -15,9 +15,7 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  declarations: [],
   imports: [
-    CommonModule,
     RouterModule.forRoot(routes),
     PagesRoutingModule,
     AuthRoutingModule

@@ -12,7 +12,7 @@ export class SettingsService {
   }
 
   loadTheme(): void {
-    // Si no encuentra nada en el ls, toma otro valor por defecto para url.
+    // Si no encuentra nada en el local storage, toma otro valor por defecto para url.
     const url = localStorage.getItem('theme') || './assets/css/colors/default-dark.css';
 
     // Se cambia el atributo

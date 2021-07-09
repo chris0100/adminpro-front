@@ -15,14 +15,15 @@ export class LoginComponent implements OnInit{
   public formSubmitted = false;
   email: string;
 
+
+  constructor(private router: Router, private fb: FormBuilder, private usuarioService: UsuarioService) {
+  }
+
   public loginForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', Validators.required],
     remember: [false]
   });
-
-  constructor(private router: Router, private fb: FormBuilder, private usuarioService: UsuarioService) {
-  }
 
   ngOnInit(): void {
         this.email = localStorage.getItem('email') || '';
@@ -31,8 +32,10 @@ export class LoginComponent implements OnInit{
 
 
   login(): void {
+    console.log(this.loginForm);
 
     if (this.loginForm.invalid) {
+      Swal.fire('Error', 'Verifica los campos ingresados', 'error');
       return;
     }
 
@@ -43,7 +46,7 @@ export class LoginComponent implements OnInit{
           // Guarda usuario y token
           this.usuarioService.guardarDataSession(response.access_token);
 
-          const usuario = this.usuarioService.usuarioValidate;
+          const usuario = this.usuarioService.usuario;
 
           Swal.fire('Bienvenido', `${usuario.nombre}, has iniciado sesión correctamente`, 'success');
           this.router.navigate(['/dashboard']);

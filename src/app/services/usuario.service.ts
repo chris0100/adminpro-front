@@ -4,8 +4,8 @@ import {environment} from '../../environments/environment';
 import {Observable} from 'rxjs';
 import {Usuario} from '../models/usuario.models';
 import {RegisterForm} from '../interfaces/register-form.interface';
-import {LoginForm} from '../interfaces/login-form.interface';
-import {map} from 'rxjs/operators';
+import {delay, map} from 'rxjs/operators';
+import {CargarUsuario} from '../interfaces/cargar-usuarios.interface';
 
 const base_url = environment.base_url;
 const auth_url = environment.auth_url;
@@ -15,41 +15,39 @@ const auth_url = environment.auth_url;
 })
 export class UsuarioService {
 
-  private usuario: Usuario;
-  private token: string;
+  // tslint:disable-next-line:variable-name
+  private _usuario: Usuario;
+  // tslint:disable-next-line:variable-name
+  private _token: string;
 
   constructor(private http: HttpClient) {
   }
 
 
-
-
-
   // Metodo Get para el usuario
-  public get usuarioValidate(): Usuario {
-    if (this.usuario != null) {
-      return this.usuario;
+  public get usuario(): Usuario {
+    if (this._usuario != null) {
+      return this._usuario;
     }
 
     // Se valida info en el localStorage
-    else if (this.usuario == null && localStorage.getItem('usuario') != null) {
-      this.usuario = JSON.parse(localStorage.getItem('usuario')) as Usuario;
-      return this.usuario;
+    else if (this._usuario == null && sessionStorage.getItem('usuario') != null) {
+      this._usuario = JSON.parse(sessionStorage.getItem('usuario')) as Usuario;
+      return this._usuario;
     }
-    return null;
   }
 
 
   // Metodo Get para el token
-  public get tokenValidate(): string {
-    if (this.token != null) {
-      return this.token;
+  public get token(): string {
+    if (this._token != null) {
+      return this._token;
     }
 
     // Se valida info en el localStorage
-    else if (this.token == null && localStorage.getItem('token') != null) {
-      this.token = localStorage.getItem('token');
-      return this.token;
+    else if (this._token == null && sessionStorage.getItem('token') != null) {
+      this._token = sessionStorage.getItem('token');
+      return this._token;
     }
     return null;
   }
@@ -62,10 +60,10 @@ export class UsuarioService {
 
   login(formData: any, remember: boolean): Observable<Usuario> {
 
-    if (remember){
-      localStorage.setItem('email', formData.email);
-    } else{
-      localStorage.removeItem('email');
+    if (remember) {
+      sessionStorage.setItem('email', formData.email);
+    } else {
+      sessionStorage.removeItem('email');
     }
 
     // Credenciales para entrada desde angular
@@ -86,6 +84,7 @@ export class UsuarioService {
     return this.http.post<Usuario>(auth_url, params.toString(), {headers: httpHeaders});
   }
 
+
   obtenerDatosToken(accessToken: string): any {
     if (accessToken != null) {
       return JSON.parse(atob(accessToken.split('.')[1]));
@@ -97,19 +96,25 @@ export class UsuarioService {
   guardarDataSession(accessToken: string): void {
     const objPayload = this.obtenerDatosToken(accessToken);
 
-    this.usuario = new Usuario(objPayload.id, objPayload.nombre, objPayload.email,
+    this._usuario = new Usuario(objPayload.id, objPayload.nombre, objPayload.email,
       '', objPayload.authorities[0], objPayload.img, objPayload.google);
 
-    this.token = accessToken;
+    if (this._usuario.img) {
+      this._usuario.img = `${base_url}/upload/usuario/${this._usuario.img}`;
+    } else {
+      this._usuario.img = `${base_url}/upload/usuario/sin-foto.png`;
+    }
 
-    // Se guarda token en el localStorage
-    localStorage.setItem('token', accessToken);
+    this._token = accessToken;
 
-    // Se guarda usuario en el localStorage
-    localStorage.setItem('usuario', JSON.stringify(this.usuario));
+    // Se guarda token en el ss
+    sessionStorage.setItem('token', accessToken);
 
-    // Se guarda id en el localstorage
-    localStorage.setItem('id', objPayload.id);
+    // Se guarda usuario en el ss
+    sessionStorage.setItem('usuario', JSON.stringify(this._usuario));
+
+    // Se guarda id en el ss
+    sessionStorage.setItem('id', objPayload.id);
   }
 
 
@@ -118,14 +123,66 @@ export class UsuarioService {
     return objPayload != null && objPayload.user_name.length > 0;
   }
 
+  get id(): string {
+    return this._usuario.id;
+  }
+
+  logout(): void {
+    this._token = null;
+    this._usuario = null;
+
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('usuario');
+    sessionStorage.removeItem('id');
+  }
 
 
-  logout(): void{
-    this.token = null;
-    this.usuario = null;
+  actualizarPerfil(data: { email: string, nombre: string, role: string, id?: string }): Observable<any> {
+/*    data = {
+      ...data
+    };*/
+    let usuarioId = JSON.parse(sessionStorage.getItem('usuario')).id;
+    if (data.id){
+      usuarioId = data.id;
+    }
+    return this.http.put(`${base_url}/usuarios/${usuarioId}`, data);
+  }
 
-    localStorage.removeItem('token');
-    localStorage.removeItem('usuario');
-    localStorage.removeItem('id');
+
+  // Area para mantenimientos
+  cargarUsuarios(desde: number = 0): Observable<any> {
+    const url = `${base_url}/usuarios/${desde}`;
+    return this.http.get<CargarUsuario>(url)
+      .pipe(
+        delay(800),
+        map(resp => {
+          const usuarios = resp.usuarios.map(user => new Usuario(user.id, user.nombre,
+            user.email, '', user.role, user.img, user.google));
+          return {
+            total: resp.total,
+            usuarios
+          };
+        })
+      );
+  }
+
+
+  eliminarUsuario(usuario: Usuario): Observable<any> {
+    const url = `${base_url}/usuarios/${usuario.id}`;
+    return this.http.delete(url);
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
